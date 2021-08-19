@@ -8,4 +8,5 @@ metodo , por ejemplo 'ggs'
 
 heuristica , puede ser  'Manhattan' o 'Euclidea'
 
+nivel maximo para IDDFS
 
