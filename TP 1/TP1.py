@@ -297,7 +297,7 @@ def busco_camino(metodo, mi_arbol, Tr, n, fil_max, col_max):
                     encontrado = 0
                     break
         
-    if (metodo == 'dfs' or metodo == 'ggs'):
+    if (metodo == 'dfs' or metodo == 'A*' or metodo == 'ggs'):
         #el ultimo es el objetivo
         valor = Tr.pop()
         if (valor == n):
@@ -512,8 +512,10 @@ def algoritmo_busqueda (metodo, heuristica, nodo, fil_max, col_max, jugador_x, j
    
         #print('tomo ', n)
         
-        if (metodo == 'ggs'):
+        if (metodo == 'A*'):
             costo = costo + costo_heuristica(heuristica, n)
+        if (metodo == 'ggs'):
+            costo = costo_heuristica(heuristica, n)
         
         #actua guardando los que visito
         Tr.append(n)
@@ -542,7 +544,7 @@ def algoritmo_busqueda (metodo, heuristica, nodo, fil_max, col_max, jugador_x, j
             #por si llego a un deadlock, tengo como volver
             #deadlock_mat.append([sucesores, (pos_caja_x, pos_caja_y,pos_jugador_x, pos_jugador_y)])
         
-            if (metodo == 'ggs'):
+            if (metodo == 'A*' or metodo == 'ggs'):
                 sucesores = aplico_heuristica (sucesores, heuristica)           
             
             for aux_sucesor in sucesores:
@@ -550,7 +552,7 @@ def algoritmo_busqueda (metodo, heuristica, nodo, fil_max, col_max, jugador_x, j
                     
                     if (metodo == 'bfs'):
                         Fr.append(aux_sucesor)
-                    elif (metodo == 'dfs' or 'ggs'):
+                    elif (metodo == 'dfs' or metodo == 'A*' or metodo == 'ggs'):
                         Fr.insert(0,aux_sucesor)
 
                     visited.append(aux_sucesor)
@@ -592,17 +594,21 @@ def algoritmo_busqueda (metodo, heuristica, nodo, fil_max, col_max, jugador_x, j
 ######### MAIN ###########
 
 from datetime import datetime
-jugador, fil_max, col_max = genero_estado_inicial('soko7.txt')
+
+#INPUT
+filename = 'soko4.txt'
+metodo = 'A*'
+heuristica = 'Manhattan'
+#heuristica = 'Euclidea'
+
+jugador, fil_max, col_max = genero_estado_inicial(filename)
 
 imprimir_estado(data)
 
 jugador_x = jugador[0]
 jugador_y = jugador[1]
-metodo = 'ggs'
-heuristica = 'Manhattan'
-#heuristica = 'Euclidea'
 print('Método ', metodo)
-if (metodo == 'ggs'):
+if (metodo == 'A*'):
     print('Heuristica ', heuristica)
 
 for i in cajas_ubicacion:
