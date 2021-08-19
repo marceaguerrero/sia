@@ -297,7 +297,7 @@ def busco_camino(metodo, mi_arbol, Tr, n, fil_max, col_max):
                     encontrado = 0
                     break
         
-    if (metodo == 'dfs' or metodo == 'A*' or metodo == 'ggs'):
+    if (metodo == 'dfs' or metodo == 'A*' or metodo == 'ggs' or metodo == 'IDDFS'):
         #el ultimo es el objetivo
         valor = Tr.pop()
         if (valor == n):
@@ -486,7 +486,7 @@ def quitar_objetivo(n):
            objetivos_ubicacion.remove(i)
            pos = pos + 1
 
-def algoritmo_busqueda (metodo, heuristica, nodo, fil_max, col_max, jugador_x, jugador_y):
+def algoritmo_busqueda (metodo, heuristica, nivel_max, nodo, fil_max, col_max, jugador_x, jugador_y):
     empiezo = datetime.now()
 
     #1. Crear Tr, Fr y Exp inicialmente vacíos.
@@ -547,12 +547,15 @@ def algoritmo_busqueda (metodo, heuristica, nodo, fil_max, col_max, jugador_x, j
             if (metodo == 'A*' or metodo == 'ggs'):
                 sucesores = aplico_heuristica (sucesores, heuristica)           
             
+            if (metodo == 'IDDFS' and nivel_max == nivel):
+                print('Maximo nivel alcanzado de IDDFS sin solucion')
+                
             for aux_sucesor in sucesores:
                 if aux_sucesor not in visited:
                     
                     if (metodo == 'bfs'):
                         Fr.append(aux_sucesor)
-                    elif (metodo == 'dfs' or metodo == 'A*' or metodo == 'ggs'):
+                    elif (metodo == 'dfs' or metodo == 'A*' or metodo == 'IDDFS' or metodo == 'ggs'):
                         Fr.insert(0,aux_sucesor)
 
                     visited.append(aux_sucesor)
@@ -597,9 +600,10 @@ from datetime import datetime
 
 #INPUT
 filename = 'soko4.txt'
-metodo = 'A*'
+metodo = 'IDDFS'
 heuristica = 'Manhattan'
 #heuristica = 'Euclidea'
+nivel_max = 2
 
 jugador, fil_max, col_max = genero_estado_inicial(filename)
 
@@ -613,5 +617,5 @@ if (metodo == 'A*'):
 
 for i in cajas_ubicacion:
     print('Caja ', i)
-    jugador_x, jugador_y = algoritmo_busqueda (metodo, heuristica, i, fil_max, col_max, jugador_x, jugador_y)
+    jugador_x, jugador_y = algoritmo_busqueda (metodo, heuristica,nivel_max,  i, fil_max, col_max, jugador_x, jugador_y)
 
