@@ -440,6 +440,114 @@ def imprimo_pasos(solucion, caja, fil_max, col_max, jugador_x, jugador_y):
 
     return jugador_x, jugador_y
 
+def heuristica_nodo (heuristica, nodo, voy_x, voy_y):
+
+    if heuristica == 'Manhattan':
+        distance = abs(voy_x - nodo[0]) + abs(voy_y - nodo[1])
+    if heuristica == 'Euclidea':
+        distance = math.sqrt((voy_x - nodo[0])**2 + (voy_y - nodo[1])**2)
+    return distance
+
+def busco_objetivo (nodo):
+
+    dist_max = 100
+    heuristica = 'Manhattan'
+    nodo_x = 0
+    nodo_y = 0
+    for i in objetivos_ubicacion:
+               
+        dist = heuristica_nodo (heuristica, nodo, i[0], i[1])
+        if (dist < dist_max):
+            dist_max = dist
+            nodo_x = i[0]
+            nodo_y = i[1]
+
+    if nodo_x == 0 and nodo_y == 0:
+        nodo_x = objetivos_ubicacion[0][0]
+        nodo_y = objetivos_ubicacion[0][1]
+    return nodo_x, nodo_y
+
+def ordeno_lista(sucesores, costo, heuristica, voy_x, voy_y):
+    
+    sucesores_ordenados = []
+    sucesores_aux = {}
+    
+    for i in sucesores:       
+        distancia = costo + heuristica_nodo(heuristica, i, voy_x, voy_y)
+        sucesores_aux[i] = distancia
+
+    sucesores_aux = sorted(sucesores_aux.items(), key=lambda x: x[1])
+    
+    for i in sucesores_aux:
+        sucesores_ordenados.append(i[0])
+
+    return sucesores_ordenados
+    
+def aplico_funcion(nodo, costo, heuristica, voy_x, voy_y):
+    
+    return costo + heuristica_nodo(heuristica, nodo, voy_x, voy_y)
+    
+                        
+def algoritmo_idaestrella(So, heuristica, fil_max, col_max):
+# Entrada So estado inicial
+# funcion paro
+# h
+
+    voy_x, voy_y = busco_objetivo(So)
+    #print('voy a ', voy_x, voy_y)
+    #cota con la que va a trabajar el algoritmo, que es la heuristica del nodo inicial 
+    c = heuristica_nodo (heuristica, So, voy_x, voy_y)
+    agenda = list()
+    costo = 1
+    
+    while costo < 60:
+        agenda.append(So)
+        minimo = 10000
+        #ruta
+        X = list()
+        while (agenda):
+            n = agenda.pop(0)
+            #n = agenda.peek() #nos da una referencia al elemento
+            #if (se cumple la condicion de paro): return X
+            if (n[0]==voy_x and n[1]==voy_y): 
+                X.append(n)
+                quitar_objetivo((voy_x, voy_y))
+                return X[1:], costo
+            if (n not in X):
+                #print('entro con n', n)
+                X.append(n)
+                sucesores = genero_hijos(n, fil_max, col_max)
+                #print('suce de n ', sucesores)
+                # f = g + h                
+                sucesores = ordeno_lista(sucesores, costo, heuristica,voy_x, voy_y)
+                #print('suce de n ordenados',sucesores)                
+                for s in sucesores:
+                    #print('entro en for con c', c)
+                    #print( 'aplico fx, ', aplico_funcion(s, costo, heuristica,voy_x, voy_y))
+                    if aplico_funcion(s, costo, heuristica,voy_x, voy_y) - 1 <= c:
+                        #print( s , X, agenda)
+                        if X == None or s not in X:
+                            agenda.append(s)
+                            #print('guardo ', X, agenda)
+                    else:
+                        if aplico_funcion(s, costo, heuristica,voy_x, voy_y) <= minimo:
+                            minimo = aplico_funcion(s, costo, heuristica,voy_x, voy_y)
+            else:
+                #print('entre al else', agenda, X)
+                #print('quiero borrar ', n)
+                X.remove(n)
+    
+            costo = costo + 1
+            c = minimo
+            if c == 100:
+                #print('salgo por aca')
+                X.clear()
+                return X, costo
+            #print('sali con ' , agenda, X, minimo, costo, c)
+    #print('salgo por alla')
+    X.clear()
+    return X, costo
+
 
 def aplico_heuristica (sucesores, heuristica):
     #calculo costo a los sucesores
@@ -447,7 +555,7 @@ def aplico_heuristica (sucesores, heuristica):
     list_mayor_a_menor = []
 
     #TO DO
-    #que objetivo elijo?
+    #que objetivo elijo? VER busco_objetivo
     voy_x = objetivos_ubicacion[0][0]
     voy_y = objetivos_ubicacion[0][1]
     for aux_sucesor in sucesores:
@@ -588,7 +696,7 @@ def algoritmo_busqueda (metodo, heuristica, nivel_max, nodo, fil_max, col_max, j
         print('Solucion Encontrada ')
         print('Solucion ', solucion)
         print('Profundidad de la solucion ', nivel_exito)
-        #jugador_x, jugador_y = imprimo_pasos(solucion, nodo, fil_max, col_max, jugador_x, jugador_y)
+        jugador_x, jugador_y = imprimo_pasos(solucion, nodo, fil_max, col_max, jugador_x, jugador_y)
     else:
         print('No hay solucion')
     
@@ -599,14 +707,15 @@ def algoritmo_busqueda (metodo, heuristica, nivel_max, nodo, fil_max, col_max, j
 from datetime import datetime
 
 #INPUT
-filename = 'soko4.txt'
-metodo = 'IDDFS'
+filename = 'soko8.txt'
+metodo = 'ida*'
 heuristica = 'Manhattan'
 #heuristica = 'Euclidea'
 nivel_max = 2
 
 jugador, fil_max, col_max = genero_estado_inicial(filename)
 
+#print(cajas_ubicacion)
 imprimir_estado(data)
 
 jugador_x = jugador[0]
@@ -615,7 +724,23 @@ print('Método ', metodo)
 if (metodo == 'A*'):
     print('Heuristica ', heuristica)
 
+pendiente = []
 for i in cajas_ubicacion:
-    print('Caja ', i)
-    jugador_x, jugador_y = algoritmo_busqueda (metodo, heuristica,nivel_max,  i, fil_max, col_max, jugador_x, jugador_y)
+    if (metodo == 'ida*'):
+        recorrido = []
+        recorrido, costo = algoritmo_idaestrella(i, heuristica, fil_max, col_max)
+        if recorrido:
+            print('Caja ', i)
+            print('El resultado es ', recorrido, costo)
+        else:
+            pendiente.append(i)
+    else:
+        jugador_x, jugador_y = algoritmo_busqueda (metodo, heuristica,nivel_max,  i, fil_max, col_max, jugador_x, jugador_y)
 
+
+if (metodo == 'ida*'):
+    #print('Otra oportunidad')
+    for i in pendiente:
+        print('Caja ', i)
+        recorrido, costo = algoritmo_idaestrella(i, heuristica, fil_max, col_max)
+        print('El resultado es ', recorrido, costo)
