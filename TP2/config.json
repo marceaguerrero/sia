@@ -1,0 +1,17 @@
+{
+	"TP1": [
+	{
+	"clase": "guerrero",
+	"cantidad poblacion": "10",
+	"variable padres": "0.4",
+	"metodo padres 1": "elite",
+	"metodo padres 2": "ruleta",
+	"variable reemplazo": "B",
+	"metodo cruza": "1 punto",
+	"mutacion": "gen",
+	"seleccion": "ruleta",
+	"implementacion": "fill-all",
+	"corte": "tiempo"
+	}
+	]
+}
