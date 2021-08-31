@@ -18,6 +18,9 @@ import struct
 # funciones mias
 import seleccion_padres
 import met_cruza
+import calculos 
+import implementacion
+import corte
 
 #variables globales
 armas=[]
@@ -27,16 +30,9 @@ guantes=[]
 pecheras=[]
 
 
-def float_to_bin(num):
-    return format(struct.unpack('!I', struct.pack('!f', num))[0], '032b')
-
-def bin_to_float(binary):
-    return struct.unpack('!f',struct.pack('!I', int(binary, 2)))[0]
-
-
 #TO DO a lo ultimo cargar los archivos originales
 def cargo_equipo():
-    with open("allitems/armas_recorte.tsv") as file:
+    with open("allitems/armas.tsv") as file:
         tsv_file = csv.reader(file, delimiter="\t")
         es_titulo = 1
         for line in tsv_file:
@@ -45,7 +41,7 @@ def cargo_equipo():
                 continue
             armas.append(line)
         
-    with open("allitems/botas_recorte.tsv") as file:
+    with open("allitems/botas.tsv") as file:
         tsv_file = csv.reader(file, delimiter="\t")
         es_titulo = 1
         for line in tsv_file:
@@ -54,7 +50,7 @@ def cargo_equipo():
                 continue
             botas.append(line)
     
-    with open("allitems/cascos_recorte.tsv") as file:
+    with open("allitems/cascos.tsv") as file:
         tsv_file = csv.reader(file, delimiter="\t")
         es_titulo = 1
         for line in tsv_file:
@@ -63,7 +59,7 @@ def cargo_equipo():
                 continue
             cascos.append(line)
 
-    with open("allitems/guantes_recorte.tsv") as file:
+    with open("allitems/guantes.tsv") as file:
         tsv_file = csv.reader(file, delimiter="\t")
         es_titulo = 1
         for line in tsv_file:
@@ -72,7 +68,7 @@ def cargo_equipo():
                 continue
             guantes.append(line)
             
-    with open("allitems/pecheras_recorte.tsv") as file:
+    with open("allitems/pecheras.tsv") as file:
         tsv_file = csv.reader(file, delimiter="\t")
         es_titulo = 1
         for line in tsv_file:
@@ -82,72 +78,6 @@ def cargo_equipo():
             pecheras.append(line)
 
 
-def calculo_items(idx_armas, idx_botas, idx_cascos, idx_guantes, idx_pecheras):
-    
-    #id	Fu	Ag	Ex	Re	Vi
-    fuerza_total = 0    
-    fuerza = 0
-    fuerza_total = fuerza_total + float(armas[idx_armas][1])
-    fuerza_total = fuerza_total + float(botas[idx_botas][1])
-    fuerza_total = fuerza_total + float(cascos[idx_cascos][1])
-    fuerza_total = fuerza_total + float(guantes[idx_guantes][1])
-    fuerza_total = fuerza_total + float(pecheras[idx_pecheras][1])
-    fuerza = 100 * math.tanh(0.01 * fuerza_total)
-
-    agilidad_total = 0    
-    agilidad = 0
-    agilidad_total = agilidad_total + float(armas[idx_armas][2])
-    agilidad_total = agilidad_total + float(botas[idx_botas][2])
-    agilidad_total = agilidad_total + float(cascos[idx_cascos][2])
-    agilidad_total = agilidad_total + float(guantes[idx_guantes][2])
-    agilidad_total = agilidad_total + float(pecheras[idx_pecheras][2])
-    agilidad = math.tanh(0.01 * agilidad_total)
-
-    pericia_total = 0    
-    pericia = 0
-    pericia_total = pericia_total + float(armas[idx_armas][3])
-    pericia_total = pericia_total + float(botas[idx_botas][3])
-    pericia_total = pericia_total + float(cascos[idx_cascos][3])
-    pericia_total = pericia_total + float(guantes[idx_guantes][3])
-    pericia_total = pericia_total + float(pecheras[idx_pecheras][3])
-    pericia = 0.6 * math.tanh(0.01 * pericia_total)
-
-    resistencia_total = 0    
-    resistencia = 0
-    resistencia_total = resistencia_total + float(armas[idx_armas][4])
-    resistencia_total = resistencia_total + float(botas[idx_botas][4])
-    resistencia_total = resistencia_total + float(cascos[idx_cascos][4])
-    resistencia_total = resistencia_total + float(guantes[idx_guantes][4])
-    resistencia_total = resistencia_total + float(pecheras[idx_pecheras][4])
-    resistencia = math.tanh(0.01 * resistencia_total)
-
-    vida_total = 0    
-    vida = 0
-    vida_total = vida_total + float(armas[idx_armas][5])
-    vida_total = vida_total + float(botas[idx_botas][5])
-    vida_total = vida_total + float(cascos[idx_cascos][5])
-    vida_total = vida_total + float(guantes[idx_guantes][5])
-    vida_total = vida_total + float(pecheras[idx_pecheras][5])
-    vida = 100 * math.tanh(0.01 * vida_total)
-
-    return fuerza, agilidad, pericia, resistencia, vida 
-
-def calculo_desempenio (clase, ataque, defensa):
-    
-    if (clase == 'guerrero'):
-        return (0.6 * ataque) + (0.6 * defensa)
-
-    if (clase == 'arquero'):
-        return (0.9 * ataque) + (0.1 * defensa)
-    
-    if (clase == 'defensor'):
-        return (0.3 * ataque) + (0.8 * defensa)
-
-    if (clase == 'infiltrado'):
-        return (0.8 * ataque) + (0.3 * defensa)
-
-    return desempenio
-   
 # #######################################################################
 # MAIN
 # #######################################################################
@@ -157,15 +87,27 @@ cargo_equipo()
 #Abro el archivo de configuracion
 f = open('config.json',)
 data = json.load(f)
-  
+
 for i in data['TP1']:
     #recibo_clase (INPUT CLASE)
     clase = i['clase']
+    #N    
     cant_pob = int(i['cantidad poblacion'])
+    #K
+    cant_ite = int(i['cantidad de individuos por iteración'])
     porc_padres = float(i['variable padres'])
     met_padres1 = i['metodo padres 1']
     met_padres2 = i['metodo padres 2']
     metodo_cruza = i ['metodo cruza']
+
+    porc_reemplazo = float(i['variable reemplazo'])
+    met_reemplazo1 = i['metodo reemplazo 1']
+    met_reemplazo2 = i['metodo reemplazo 2']
+    met_implementacion = i['implementacion']
+
+    tipo_corte = i['corte']
+    var_corte = i['variable corte']
+    
     for z in range(cant_pob):
         #genero_altura
         altura = random.uniform(1.3, 2.)
@@ -180,14 +122,14 @@ for i in data['TP1']:
         idx_pecheras = random.randint(0,len(pecheras)-1)
         
         #genero_desempeño
-        fuerza, agilidad, pericia, resistencia, vida = calculo_items(idx_armas, 
+        fuerza, agilidad, pericia, resistencia, vida = calculos.calculo_items(idx_armas, 
                                                                      idx_botas, 
                                                                      idx_cascos, 
                                                                      idx_guantes, 
-                                                                     idx_pecheras)
+                                                                     idx_pecheras,                  armas, botas, cascos, guantes, pecheras)
         ataque = (agilidad + pericia) * fuerza * atm
         defensa = (resistencia + pericia) * vida * dem
-        desempenio = calculo_desempenio (clase, ataque, defensa)
+        desempenio = calculos.calculo_desempenio (clase, ataque, defensa)
         
         # print(clase, altura, atm, dem, idx_armas, idx_botas, idx_cascos, idx_guantes, idx_pecheras)    
         # print(fuerza, agilidad, pericia, resistencia, vida, ataque, defensa, desempenio)
@@ -198,41 +140,59 @@ for i in data['TP1']:
                    'idx_cascos': [], 'idx_guantes': [],
                    'idx_pecheras': []}
         jugador['clase'].append(clase)
-        jugador['altura'].append(float_to_bin(altura))
+        jugador['altura'].append(calculos.float_to_bin(altura))
         jugador['desempenio'].append(desempenio) 
-        jugador['idx_armas'].append(float_to_bin(idx_armas))
-        jugador['idx_botas'].append(float_to_bin(idx_botas))
-        jugador['idx_cascos'].append(float_to_bin(idx_cascos))
-        jugador['idx_guantes'].append(float_to_bin(idx_guantes))
-        jugador['idx_pecheras'].append(float_to_bin(idx_pecheras))
+        jugador['idx_armas'].append(calculos.float_to_bin(idx_armas))
+        jugador['idx_botas'].append(calculos.float_to_bin(idx_botas))
+        jugador['idx_cascos'].append(calculos.float_to_bin(idx_cascos))
+        jugador['idx_guantes'].append(calculos.float_to_bin(idx_guantes))
+        jugador['idx_pecheras'].append(calculos.float_to_bin(idx_pecheras))
         poblacion.append(jugador)
-
+    
 #print(poblacion)
 f.close()
 
+ronda = 1
+impresion = []
+impresion.append( calculos.guardar(0, poblacion))
 
-# mientras condicion de corte
-#     genero_padres (INPUT VARIABLE A)
+while(True):
+    #  genero_padres (INPUT VARIABLE A)
+    padres = []
+    padres = seleccion_padres.elijo_padres(poblacion, porc_padres, cant_pob, cant_ite, met_padres1, met_padres2)
+    
+    # genero_cruza
+    # tomo los padres de a dos y realizo la cruza
+    nuevos_hijos = []
+    nuevos_hijos = met_cruza.cruza(metodo_cruza, padres, armas, botas, cascos, guantes, pecheras)
+    
+    # genero_mutacion
+    # pendiente
+    
+    # genero implementacion y reemplazo
+    poblacion2 = []
+    poblacion2 = implementacion.seleccion_poblacion(poblacion, nuevos_hijos, porc_reemplazo, cant_pob, cant_ite, met_reemplazo1, met_reemplazo2, met_implementacion)
+    
+    #guardo fitness promedio, minimo y la ronda
+    impresion.append( calculos.guardar(ronda, poblacion2))
 
-padres = []
-padres = seleccion_padres.elijo_padres(poblacion, porc_padres, cant_pob, met_padres1, met_padres2)
-#print(padres)
-
-#     genero_cruza
-# tomo los padres de a dos y realizo la cruza
-nuevos_hijos = []
-nuevos_hijos = met_cruza.cruza(metodo_cruza, padres)
-
-
-#     genero_mutacion
-#     genero_reemplazo (INPUT VARIABLE B)
+    # buscar condicion corte
+    if corte.se_corta(poblacion2, tipo_corte, var_corte, ronda):
+        poblacion =[]
+        poblacion = poblacion2
+        break
+    else:
+        poblacion =[]
+        poblacion = poblacion2
+        ronda = ronda + 1
+    
 
 # devolver_mejor_personaje
-
-
-
-
-
+el_mejor = corte.devuelvo_mejor (poblacion)
+print(el_mejor)
+#hay que ir imprimiendo en tiempo real TO DO
+#el minimo, el promedio, la generacion
+print(impresion)
 
 # #######################################################################
 # PSEUDO CODIGO
