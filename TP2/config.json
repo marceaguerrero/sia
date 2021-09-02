@@ -2,19 +2,19 @@
 	"TP1": [
 	{
 	"clase": "guerrero",
-	"cantidad poblacion": "500",
-	"cantidad de individuos por iteración": "250",
+	"cantidad poblacion": "10",
+	"cantidad de individuos por iteración": "5",
 	"variable padres": "0.4",
 	"metodo padres 1": "torneo_det",
-	"metodo padres 2": "torneo_prob",
+	"metodo padres 2": "ruleta",
 	"metodo cruza": "1 punto",
-	"mutacion": "gen",
+	"metodo mutacion": "gen",
 	"variable reemplazo": "0.3",
 	"metodo reemplazo 1": "ruleta",
 	"metodo reemplazo 2": "elite",
 	"implementacion": "fill-all",
 	"corte": "cantidad generaciones",
-	"variable corte": "50"
+	"variable corte": "10"
 	
 	}
 	]

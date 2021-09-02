@@ -11,16 +11,16 @@ import csv
 import json
 # para generar la altura
 import random
-# para la tangente hiperbolica
-import math
-# para convertir a bits
-import struct
+# para los graficos
+import time
 # funciones mias
+import calculos 
 import seleccion_padres
 import met_cruza
-import calculos 
+import met_mut
 import implementacion
 import corte
+import graficos
 
 #variables globales
 armas=[]
@@ -99,6 +99,7 @@ for i in data['TP1']:
     met_padres1 = i['metodo padres 1']
     met_padres2 = i['metodo padres 2']
     metodo_cruza = i ['metodo cruza']
+    metodo_mutacion = i['metodo mutacion']
 
     porc_reemplazo = float(i['variable reemplazo'])
     met_reemplazo1 = i['metodo reemplazo 1']
@@ -140,21 +141,27 @@ for i in data['TP1']:
                    'idx_cascos': [], 'idx_guantes': [],
                    'idx_pecheras': []}
         jugador['clase'].append(clase)
-        jugador['altura'].append(calculos.float_to_bin(altura))
+        jugador['altura'].append(altura)
         jugador['desempenio'].append(desempenio) 
-        jugador['idx_armas'].append(calculos.float_to_bin(idx_armas))
-        jugador['idx_botas'].append(calculos.float_to_bin(idx_botas))
-        jugador['idx_cascos'].append(calculos.float_to_bin(idx_cascos))
-        jugador['idx_guantes'].append(calculos.float_to_bin(idx_guantes))
-        jugador['idx_pecheras'].append(calculos.float_to_bin(idx_pecheras))
+        jugador['idx_armas'].append(idx_armas)
+        jugador['idx_botas'].append(idx_botas)
+        jugador['idx_cascos'].append(idx_cascos)
+        jugador['idx_guantes'].append(idx_guantes)
+        jugador['idx_pecheras'].append(idx_pecheras)
         poblacion.append(jugador)
     
-#print(poblacion)
 f.close()
 
 ronda = 1
-impresion = []
-impresion.append( calculos.guardar(0, poblacion))
+#impresion
+generacion = []
+generacion.append(1)
+
+plotter = graficos.Plotter(500,-500,500)
+minimo, promedio = calculos.guardar(ronda, poblacion)
+plotter.plotdata( [ronda, minimo, promedio, promedio])
+time.sleep(.01)
+print('deberia imprimir ' , ronda, minimo, promedio, promedio)
 
 while(True):
     #  genero_padres (INPUT VARIABLE A)
@@ -162,19 +169,23 @@ while(True):
     padres = seleccion_padres.elijo_padres(poblacion, porc_padres, cant_pob, cant_ite, met_padres1, met_padres2)
     
     # genero_cruza
-    # tomo los padres de a dos y realizo la cruza
     nuevos_hijos = []
     nuevos_hijos = met_cruza.cruza(metodo_cruza, padres, armas, botas, cascos, guantes, pecheras)
     
     # genero_mutacion
-    # pendiente
+    nuevos_hijos = met_mut.mutacion(metodo_mutacion, nuevos_hijos, armas, botas, cascos, guantes, pecheras)
     
     # genero implementacion y reemplazo
     poblacion2 = []
     poblacion2 = implementacion.seleccion_poblacion(poblacion, nuevos_hijos, porc_reemplazo, cant_pob, cant_ite, met_reemplazo1, met_reemplazo2, met_implementacion)
     
     #guardo fitness promedio, minimo y la ronda
-    impresion.append( calculos.guardar(ronda, poblacion2))
+    
+    minimo, promedio = calculos.guardar(ronda, poblacion2)
+    plotter.plotdata( [ronda, minimo, promedio, promedio])
+    time.sleep(.01)
+    print('deberia imprimir ' , ronda, minimo, promedio, promedio)
+
 
     # buscar condicion corte
     if corte.se_corta(poblacion2, tipo_corte, var_corte, ronda):
@@ -187,12 +198,14 @@ while(True):
         ronda = ronda + 1
     
 
+
 # devolver_mejor_personaje
 el_mejor = corte.devuelvo_mejor (poblacion)
 print(el_mejor)
 #hay que ir imprimiendo en tiempo real TO DO
 #el minimo, el promedio, la generacion
-print(impresion)
+#print(impresion)
+
 
 # #######################################################################
 # PSEUDO CODIGO

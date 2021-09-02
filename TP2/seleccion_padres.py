@@ -8,7 +8,7 @@ Created on Fri Aug 27 23:50:53 2021
 import random
 
 def calculo_pi(poblacion):
-    
+
     sum_total = 0
     for i in poblacion:
         sum_total = sum_total + sum(i['desempenio'])

@@ -8,6 +8,7 @@ Created on Sat Aug 28 00:30:14 2021
 import random
 import seleccion_padres
 import calculos
+import numpy as np
 
 def un_punto(padres, armas, botas, cascos, guantes, pecheras):
     
@@ -21,58 +22,111 @@ def un_punto(padres, armas, botas, cascos, guantes, pecheras):
         if (not padres):
             break
         mama = padres.pop(0)
-
+        padres.insert(0, mama)
 
         #elijo un locus al azar que es un valor entre 0 y el tamanio del gen        
-        locus = int(random.uniform(0, 31))
-        #intercambio genes de padre y madre en ese locus
-        altura = papa['altura'][0][:locus]+mama['altura'][0][locus:]
-        idx_armas = papa['idx_armas'][0][:locus]+mama['idx_armas'][0][locus:]      
-        idx_botas = papa['idx_botas'][0][:locus]+mama['idx_botas'][0][locus:]
-        idx_cascos = papa['idx_cascos'][0][:locus]+mama['idx_cascos'][0][locus:]
-        idx_guantes = papa['idx_guantes'][0][:locus]+mama['idx_guantes'][0][locus:]
-        idx_pecheras = papa['idx_pecheras'][0][:locus]+mama['idx_pecheras'][0][locus:]
+        locus = int(random.uniform(1,6))
+        #intercambio genes de padre y madre en ese locus para cada hijo
 
-        if calculos.bin_to_float(idx_armas) > 999999: idx_armas = calculos.float_to_bin(0)
-        if calculos.bin_to_float(idx_botas) > 999999: idx_botas = calculos.float_to_bin(0)
-        if calculos.bin_to_float(idx_cascos) > 999999: idx_cascos = calculos.float_to_bin(0)
-        if calculos.bin_to_float(idx_guantes) > 999999: idx_guantes = calculos.float_to_bin(0)
-        if calculos.bin_to_float(idx_pecheras) > 999999: idx_pecheras = calculos.float_to_bin(0)
-
-        jugador = {'clase': [], 'altura': [], 'desempenio': [], 
+        #lleno hijo 1
+        jugador1 = {'clase': [], 'altura': [], 'desempenio': [], 
+                  'pi': [], 'qi': [],
+                   'idx_armas': [], 'idx_botas': [],
+                   'idx_cascos': [], 'idx_guantes': [],
+                   'idx_pecheras': []}
+        jugador2 = {'clase': [], 'altura': [], 'desempenio': [], 
                   'pi': [], 'qi': [],
                    'idx_armas': [], 'idx_botas': [],
                    'idx_cascos': [], 'idx_guantes': [],
                    'idx_pecheras': []}
         
-        jugador['clase'].append(papa['clase'][0])
-        jugador['altura'].append(altura)
-        # print('progenitores', papa, mama)
-        # print( 'altura ' , altura)
-        
-        prom_altura = calculos.bin_to_float(altura)
-        atm = 0.7 - ((prom_altura*3)-5)**4 + ((prom_altura*3)-5)**2 + (prom_altura/4)
-        dem = 1.9 + ((prom_altura*2.5) - 4.16)**4 - ((prom_altura*2.5) - 4.16)**2 - ((prom_altura*3)/10)
-        #genero_desempeño
-        fuerza, agilidad, pericia, resistencia, vida = calculos.calculo_items(calculos.bin_to_float(idx_armas), 
-                                                                     calculos.bin_to_float(idx_botas), 
-                                                                     calculos.bin_to_float(idx_cascos), 
-                                                                     calculos.bin_to_float(idx_guantes), 
-                                                                     calculos.bin_to_float(idx_pecheras), armas, botas, cascos, guantes, pecheras)
-        ataque = (agilidad + pericia) * fuerza * atm
-        defensa = (resistencia + pericia) * vida * dem
-        desempenio = calculos.calculo_desempenio (jugador['clase'], ataque, defensa)
+        jugador1['clase'].append(papa['clase'][0])
+        jugador2['clase'].append(papa['clase'][0])
 
-        jugador['desempenio'].append(desempenio) 
-        jugador['idx_armas'].append(idx_armas)
-        jugador['idx_botas'].append(idx_botas)
-        jugador['idx_cascos'].append(idx_cascos)
-        jugador['idx_guantes'].append(idx_guantes)
-        jugador['idx_pecheras'].append(idx_pecheras)
-        nuevos_hijos.append(jugador)
+        if locus == 1:
+            jugador1['altura'].append(papa['altura'][0])
+            jugador2['altura'].append(mama['altura'][0])
+            jugador1['idx_armas'].append(mama['idx_armas'][0])
+            jugador2['idx_armas'].append(papa['idx_armas'][0])
+            jugador1['idx_botas'].append(mama['idx_botas'][0])
+            jugador2['idx_botas'].append(papa['idx_botas'][0])
+            jugador1['idx_cascos'].append(mama['idx_cascos'][0])
+            jugador2['idx_cascos'].append(papa['idx_cascos'][0])
+            jugador1['idx_guantes'].append(mama['idx_guantes'][0])
+            jugador2['idx_guantes'].append(papa['idx_guantes'][0])
+            jugador1['idx_pecheras'].append(mama['idx_pecheras'][0])
+            jugador2['idx_pecheras'].append(papa['idx_pecheras'][0])
+        if locus == 2:
+            jugador1['altura'].append(papa['altura'][0])
+            jugador2['altura'].append(mama['altura'][0])
+            jugador1['idx_armas'].append(papa['idx_armas'][0])
+            jugador2['idx_armas'].append(mama['idx_armas'][0])
+            jugador1['idx_botas'].append(mama['idx_botas'][0])
+            jugador2['idx_botas'].append(papa['idx_botas'][0])
+            jugador1['idx_cascos'].append(mama['idx_cascos'][0])
+            jugador2['idx_cascos'].append(papa['idx_cascos'][0])
+            jugador1['idx_guantes'].append(mama['idx_guantes'][0])
+            jugador2['idx_guantes'].append(papa['idx_guantes'][0])
+            jugador1['idx_pecheras'].append(mama['idx_pecheras'][0])
+            jugador2['idx_pecheras'].append(papa['idx_pecheras'][0])
+        if locus == 3:
+            jugador1['altura'].append(papa['altura'][0])
+            jugador2['altura'].append(mama['altura'][0])
+            jugador1['idx_armas'].append(papa['idx_armas'][0])
+            jugador2['idx_armas'].append(mama['idx_armas'][0])
+            jugador1['idx_botas'].append(papa['idx_botas'][0])
+            jugador2['idx_botas'].append(mama['idx_botas'][0])
+            jugador1['idx_cascos'].append(mama['idx_cascos'][0])
+            jugador2['idx_cascos'].append(papa['idx_cascos'][0])
+            jugador1['idx_guantes'].append(mama['idx_guantes'][0])
+            jugador2['idx_guantes'].append(papa['idx_guantes'][0])
+            jugador1['idx_pecheras'].append(mama['idx_pecheras'][0])
+            jugador2['idx_pecheras'].append(papa['idx_pecheras'][0])
+        if locus == 4:
+            jugador1['altura'].append(papa['altura'][0])
+            jugador2['altura'].append(mama['altura'][0])
+            jugador1['idx_armas'].append(papa['idx_armas'][0])
+            jugador2['idx_armas'].append(mama['idx_armas'][0])
+            jugador1['idx_botas'].append(papa['idx_botas'][0])
+            jugador2['idx_botas'].append(mama['idx_botas'][0])
+            jugador1['idx_cascos'].append(papa['idx_cascos'][0])
+            jugador2['idx_cascos'].append(mama['idx_cascos'][0])
+            jugador1['idx_guantes'].append(mama['idx_guantes'][0])
+            jugador2['idx_guantes'].append(papa['idx_guantes'][0])
+            jugador1['idx_pecheras'].append(mama['idx_pecheras'][0])
+            jugador2['idx_pecheras'].append(papa['idx_pecheras'][0])
+        if locus == 5:
+            jugador1['altura'].append(papa['altura'][0])
+            jugador2['altura'].append(mama['altura'][0])
+            jugador1['idx_armas'].append(papa['idx_armas'][0])
+            jugador2['idx_armas'].append(mama['idx_armas'][0])
+            jugador1['idx_botas'].append(papa['idx_botas'][0])
+            jugador2['idx_botas'].append(mama['idx_botas'][0])
+            jugador1['idx_cascos'].append(papa['idx_cascos'][0])
+            jugador2['idx_cascos'].append(mama['idx_cascos'][0])
+            jugador1['idx_guantes'].append(papa['idx_guantes'][0])
+            jugador2['idx_guantes'].append(mama['idx_guantes'][0])
+            jugador1['idx_pecheras'].append(mama['idx_pecheras'][0])
+            jugador2['idx_pecheras'].append(papa['idx_pecheras'][0])
+        if locus == 6:
+            jugador1['altura'].append(papa['altura'][0])
+            jugador2['altura'].append(mama['altura'][0])
+            jugador1['idx_armas'].append(papa['idx_armas'][0])
+            jugador2['idx_armas'].append(mama['idx_armas'][0])
+            jugador1['idx_botas'].append(papa['idx_botas'][0])
+            jugador2['idx_botas'].append(mama['idx_botas'][0])
+            jugador1['idx_cascos'].append(papa['idx_cascos'][0])
+            jugador2['idx_cascos'].append(mama['idx_cascos'][0])
+            jugador1['idx_guantes'].append(papa['idx_guantes'][0])
+            jugador2['idx_guantes'].append(mama['idx_guantes'][0])
+            jugador1['idx_pecheras'].append(papa['idx_pecheras'][0])
+            jugador2['idx_pecheras'].append(mama['idx_pecheras'][0])
 
+ 
+        nuevos_hijos.append(jugador1)
+        nuevos_hijos.append(jugador2)
 
-    nuevos_hijos = seleccion_padres.calculo_pi(nuevos_hijos)
+    #no calculo el desempenio, ni pi ni qi ya que aun tengo que mutar
 
     return nuevos_hijos
 
@@ -81,6 +135,9 @@ def cruza (met_cruza, padres,armas, botas, cascos, guantes, pecheras):
 # ANULAR
 # UNIFORME
     nuevos_hijos = [] 
+  
+    np.random.shuffle(padres)
+  
     if met_cruza == '1 punto':
         nuevos_hijos = un_punto(padres,armas, botas, cascos, guantes, pecheras)
 

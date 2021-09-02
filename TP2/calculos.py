@@ -115,5 +115,5 @@ def guardar(ronda, poblacion):
         suma = suma + float(i['desempenio'][0])
         cant = cant + 1
         
-    return minimo, suma/cant , ronda
+    return minimo, suma/cant #, ronda
 
