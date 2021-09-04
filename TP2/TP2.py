@@ -13,6 +13,9 @@ import json
 import random
 # para los graficos
 import time
+# para el corte por tiempo
+from datetime import datetime
+
 # funciones mias
 import calculos 
 import seleccion_padres
@@ -81,6 +84,7 @@ def cargo_equipo():
 # #######################################################################
 # MAIN
 # #######################################################################
+empiezo = datetime.now()
 poblacion = []
 cargo_equipo()
 
@@ -108,6 +112,7 @@ for i in data['TP1']:
 
     tipo_corte = i['corte']
     var_corte = i['variable corte']
+    var_corte_2 = i['otra variable corte']
     
     for z in range(cant_pob):
         #genero_altura
@@ -153,15 +158,16 @@ for i in data['TP1']:
 f.close()
 
 ronda = 1
-#impresion
-generacion = []
-generacion.append(1)
+#para trabajar corte por el mejor
+una_lista = []
+#para trabajar corte por la poblacion entera
+toda_la_lista = []
 
-plotter = graficos.Plotter(500,-500,500)
+plotter = graficos.Plotter(500,0,50)
 minimo, promedio = calculos.guardar(ronda, poblacion)
-plotter.plotdata( [ronda, minimo, promedio, promedio])
 time.sleep(.01)
-print('deberia imprimir ' , ronda, minimo, promedio, promedio)
+plotter.plotdata( [minimo, minimo, promedio, promedio])
+
 
 while(True):
     #  genero_padres (INPUT VARIABLE A)
@@ -182,13 +188,16 @@ while(True):
     #guardo fitness promedio, minimo y la ronda
     
     minimo, promedio = calculos.guardar(ronda, poblacion2)
-    plotter.plotdata( [ronda, minimo, promedio, promedio])
     time.sleep(.01)
-    print('deberia imprimir ' , ronda, minimo, promedio, promedio)
+    plotter.plotdata( [minimo, minimo, promedio, promedio])
 
+    el_mejor = corte.devuelvo_mejor (poblacion2)
+    #print('el mejor de esa poblacion', el_mejor)
 
-    # buscar condicion corte
-    if corte.se_corta(poblacion2, tipo_corte, var_corte, ronda):
+    una_lista.insert(0,el_mejor)
+    toda_la_lista.insert(0,poblacion2)
+    
+    if corte.se_corta(poblacion2, tipo_corte, var_corte, ronda, empiezo, promedio, una_lista, toda_la_lista, var_corte_2):
         poblacion =[]
         poblacion = poblacion2
         break
@@ -198,13 +207,14 @@ while(True):
         ronda = ronda + 1
     
 
+input("Press Enter to continue...")
 
 # devolver_mejor_personaje
 el_mejor = corte.devuelvo_mejor (poblacion)
 print(el_mejor)
-#hay que ir imprimiendo en tiempo real TO DO
-#el minimo, el promedio, la generacion
-#print(impresion)
+termino = datetime.now()
+# print('Tiempo total desde ', empiezo, ' y termino ', termino )
+# print((termino - empiezo).total_seconds())
 
 
 # #######################################################################
