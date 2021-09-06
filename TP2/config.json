@@ -1,20 +1,22 @@
 {
 	"TP1": [
 	{
-	"clase": "guerrero",
-	"cantidad poblacion": "200",
-	"cantidad de individuos por iteración": "100",
+	"clase": "infiltrado",
+	"cantidad poblacion": "10",
+	"cantidad de individuos por iteración": "5",
 	"variable padres": "0.4",
-	"metodo padres 1": "torneo_det",
-	"metodo padres 2": "ruleta",
-	"metodo cruza": "1 punto",
+	"metodo padres 1": "elite",
+	"metodo padres 2": "ranking",
+	"metodo cruza": "uniforme",
 	"metodo mutacion": "gen",
+	"mutacion Pm": "0.5",
+	"mutacion M": "3",
 	"variable reemplazo": "0.3",
 	"metodo reemplazo 1": "ruleta",
-	"metodo reemplazo 2": "elite",
+	"metodo reemplazo 2": "torneo_det",
 	"implementacion": "fill-all",
-	"corte": "fitness objetivo",
-	"variable corte": "27",
+	"corte": "cantidad generaciones",
+	"variable corte": "1",
 	"otra variable corte": "0.8"
 
 	

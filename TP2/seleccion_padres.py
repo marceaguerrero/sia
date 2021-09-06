@@ -6,6 +6,8 @@ Created on Fri Aug 27 23:50:53 2021
 """
 
 import random
+# para boltzmann por la variable e
+import math
 
 def calculo_pi(poblacion):
 
@@ -148,7 +150,7 @@ def seleccion_universal (K, poblacion):
     #busco en qi esos numeros y listo bye bye
     return padres_universal
 
-def seleccion_ranking (porcentaje, K, poblacion):
+def seleccion_ranking (K, poblacion):
     
     padres_ranking = []
     K = int(K) 
@@ -167,20 +169,59 @@ def seleccion_ranking (porcentaje, K, poblacion):
     #luego se usa ruleta con esa nueva f
     
     valor = aux.pop(0)
+    cant = 0
+    qui = 0 
     for i in poblacion:
-        qui = sum(i['qi'])
-        #print('qui ', qui)
-        if valor <= qui:        
+       
+        qui = float(i['qi'])
+        if float(valor[0]) <= qui:        
             #print(i, nro)
             padres_ranking.append(i)
+            cant = cant + 1
+            if cant >= K:
+                break
             if (aux):
                 valor = aux.pop(0)
             else:
                 break
  
-    
     return padres_ranking
     
+def seleccion_boltzmann(porcentaje, K, poblacion):
+
+    padres_boltzmann = []
+    K = int(K) 
+    
+    list_desempenio = []    
+    N = 0
+    T = 0.99
+    for i in poblacion:
+        #T = T * 0.1
+        N = N + math.exp(float(i['desempenio'][0]) / T)
+        x = math.exp(float(i['desempenio'][0]) / T) / N
+        list_desempenio.append(x)        
+    list_desempenio = sorted(list_desempenio,reverse=True)
+      
+    #luego se usa ruleta con esa nueva f
+    
+    valor = list_desempenio.pop(0)
+    cant = 0
+    qui = 0 
+    for i in poblacion:
+        
+        qui = float(i['qi'])
+        if float(valor) <= qui:        
+            padres_boltzmann.append(i)
+            cant = cant + 1
+            if cant >= K:
+                break
+            if (list_desempenio):
+                valor = list_desempenio.pop(0)
+            else:
+                break
+ 
+    return padres_boltzmann
+
 def elijo_padres(poblacion, porcentaje, cant_pob, K, met_padres1, met_padres2):
  # TO DO 
  # Boltzmann
@@ -208,6 +249,9 @@ def elijo_padres(poblacion, porcentaje, cant_pob, K, met_padres1, met_padres2):
     if met_padres1 == 'torneo_prob':
         padres = seleccion_torneo_prob(porcentaje * K, cant_pob, poblacion)
 
+    if met_padres1 == 'boltzmann':
+        padres = seleccion_boltzmann(porcentaje * K, cant_pob, poblacion)
+
     if met_padres2 == 'elite':
         padres.extend(seleccion_elite ((1 - porcentaje) * K, poblacion))
 
@@ -225,5 +269,8 @@ def elijo_padres(poblacion, porcentaje, cant_pob, K, met_padres1, met_padres2):
 
     if met_padres2 == 'torneo_prob':
         padres.extend(seleccion_torneo_prob((1 - porcentaje) * K, cant_pob, poblacion))
+
+    if met_padres2 == 'boltzmann':
+        padres.extend(seleccion_boltzmann((1 - porcentaje) * K, cant_pob, poblacion))
 
     return padres

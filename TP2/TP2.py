@@ -103,7 +103,10 @@ for i in data['TP1']:
     met_padres1 = i['metodo padres 1']
     met_padres2 = i['metodo padres 2']
     metodo_cruza = i ['metodo cruza']
+
     metodo_mutacion = i['metodo mutacion']
+    Pm = float(i['mutacion Pm'])
+    M = int(i['mutacion M'])
 
     porc_reemplazo = float(i['variable reemplazo'])
     met_reemplazo1 = i['metodo reemplazo 1']
@@ -179,7 +182,7 @@ while(True):
     nuevos_hijos = met_cruza.cruza(metodo_cruza, padres, armas, botas, cascos, guantes, pecheras)
     
     # genero_mutacion
-    nuevos_hijos = met_mut.mutacion(metodo_mutacion, nuevos_hijos, armas, botas, cascos, guantes, pecheras)
+    nuevos_hijos = met_mut.mutacion(metodo_mutacion, nuevos_hijos, armas, botas, cascos, guantes, pecheras, Pm, M)
     
     # genero implementacion y reemplazo
     poblacion2 = []
