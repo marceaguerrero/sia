@@ -198,6 +198,11 @@ def seleccion_boltzmann(porcentaje, K, poblacion):
     for i in poblacion:
         #T = T * 0.1
         N = N + math.exp(float(i['desempenio'][0]) / T)
+
+    N = N / len(poblacion)
+    
+    for i in poblacion:
+        #T = T * 0.1
         x = math.exp(float(i['desempenio'][0]) / T) / N
         list_desempenio.append(x)        
     list_desempenio = sorted(list_desempenio,reverse=True)
